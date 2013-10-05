@@ -1,0 +1,46 @@
+.time {
+  opacity:0;
+}
+
+.fadeIn {
+  .transition(all, 0.5s);
+
+  opacity:1;
+}
+
+.fadeOut {
+  .transition(all, 0.5s);
+
+  opacity:0;
+}
+
+// §1 Transitions
+.transition(@property, @duration, @delay: 0, @timing-function: 0) {
+  // Firefox
+  -moz-transition-property: @property;
+  -moz-transition-duration: @duration;
+
+  // Safari / Chrome
+  -webkit-transition-property: @property;
+  -webkit-transition-duration: @duration;
+
+  // Opera
+  -o-transition-property: @property;
+  -o-transition-duration: @duration;
+
+  // Standard
+  transition-property: @property;
+  transition-duration: @duration;
+}
+.transition(@@property, @duration, @delay, @timing-function) when (@delay) {
+  -moz-transition-delay: @delay;
+  -webkit-transition-delay: @delay;
+  -o-transition-delay: @delay;
+  transition-delay: @delay;
+}
+.transition(@@property, @duration, @delay, @timing-function) when (@timing-function) {
+  -moz-transition-timing-function: @timing-function;
+  -webkit-transition-timing-function: @timing-function;
+  -o-transition-timing-function: @timing-function;
+  transition-timing-function: @timing-function;
+}
