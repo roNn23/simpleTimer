@@ -1,9 +1,8 @@
 simpleTimer = {
 
-  timers: [],
-  startTime: 0,
-  endTime: 0,
   timerID: 0,
+
+  timers: [],
   intervals: [],
 
   formElement: {},
@@ -96,6 +95,10 @@ simpleTimer = {
 
     var form, timerElement;
 
+    runningTimersHeadline = self.lib._('.runningTimers h3', true);
+    runningTimersMsg = self.lib._('.runningTimers .emptyMessage', true);
+    self.lib.addClass('hidden', runningTimersMsg);
+
     timerElement = document.createElement('p');
     timerElement.id = 'timer' + timerID;
     timerElement.innerHTML =
@@ -104,7 +107,7 @@ simpleTimer = {
       '<a href="#" onclick="simpleTimer.stop(' + timerID + ');">Stop</a>'
     ;
 
-    self.lib.insertAfter(self.formElement, timerElement);
+    self.lib.insertAfter(runningTimersHeadline, timerElement);
   },
 
   startIntervalForTimer: function(timerID) {
@@ -121,7 +124,12 @@ simpleTimer = {
     times = self.getTimes(timerID);
 
     timerSpan = self.lib._('p#timer' + timerID + ' span', true);
-    timerSpan.innerHTML = duration.hours + ':' + duration.minutes + ':' + duration.seconds + ':' + duration.milliseconds;
+    timerSpan.innerHTML =
+      duration.hours + ':' +
+      duration.minutes + ':' +
+      duration.seconds + ':' +
+      duration.milliseconds
+    ;
   },
 
   stop: function(timerID) {
@@ -138,6 +146,29 @@ simpleTimer = {
     endTime = new Date().getTime();
 
     self.timers[timerID].endTime = endTime;
+
+    finishedTimersHeadline = self.lib._('.finishedTimers h3', true);
+    finishedTimersMsg = self.lib._('.finishedTimers .emptyMessage', true);
+
+    timer = self.lib._('p#timer' + timerID, true);
+    self.lib.insertAfter(finishedTimersHeadline, timer);
+
+    self.lib.addClass('hidden', finishedTimersMsg);
+
+    if(!self.isTimerRunning())
+      runningTimersMsg.classList.remove('hidden');
+  },
+
+  isTimerRunning: function() {
+    var self = this;
+
+    for (var i = self.timers.length - 1; i >= 0; i--) {
+      timerObj = self.timers[i];
+      if(timerObj.endTime == 0)
+        return true;
+    };
+
+    return false;
   },
 
   getTimes: function(timerID) {

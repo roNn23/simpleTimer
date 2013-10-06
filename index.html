@@ -7,19 +7,25 @@
 </head>
 <body>
 
+  <h1>Simpletimer</h1>
+
+  <h2>Start a new timer</h2>
+
   <form action="" method="post" id="formular">
-    <label for="titleInput">Title</label>
+    <label for="titleInput">Timer-Title</label>
     <input type="text" name="titleInput" id="titleInput">
     <input type="submit" name="submit" value="Start the timer!" disabled="disabled">
   </form>
 
+  <div class="runningTimers">
+    <h3>Running Timers</h3>
+    <p class="emptyMessage">Currently there are none timers are running.</p>
+  </div>
 
-<!--
-  <a href="#" onclick="simpleTimer.stop();">Stop it.</a>
-
-  <p class="showTimer"></p>
-
-  <p class="time"></p> -->
+  <div class="finishedTimers">
+    <h3>Finished Timers</h3>
+    <p class="emptyMessage">Currently there are none timers finished.</p>
+  </div>
 
   <script src="simpleTimer.js"></script>
 </body>
