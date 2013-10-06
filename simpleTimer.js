@@ -1,7 +1,14 @@
 simpleTimer = {
 
+  timers: [],
   startTime: 0,
   endTime: 0,
+  timerID: 0,
+  intervals: [],
+
+  formElement: {},
+  titleInput: {},
+  submit: {},
 
   init: function() {
     var self = this;
@@ -9,73 +16,142 @@ simpleTimer = {
     if(!self.checkForStorageSupport())
       return;
 
-    submit = self.lib._('input[type="submit"]');
+    self.declareElements();
 
-    self.lib.on('click', submit[0], function(e) {
+    self.bindEvents();
+  },
+
+  declareElements: function() {
+    var self = this;
+
+    self.formElement = self.lib._('form', true);
+    self.titleInput  = self.lib._('input[name="titleInput"]', true);
+    self.submit      = self.lib._('input[type="submit"]', true);
+  },
+
+  bindEvents: function() {
+    var self = this;
+
+    self.lib.on('keyup', self.titleInput, function() {
+      if(self.titleInput.value != '')
+        self.submit.disabled = false;
+      else
+        self.submit.disabled = true;
+    });
+
+    self.lib.on('click', self.submit, function(e) {
       e.preventDefault();
-      self.startTimer();
+      self.startNewTimer();
     });
   },
 
-  startTimer: function() {
+  resetForm: function() {
     var self = this;
 
-    self.startTime = new Date().getTime();
+    self.titleInput = self.lib._('input[name="titleInput"]', true);
+    self.titleInput.value = '';
 
-    form = self.lib._('form');
-    self.lib.addClass('fadeOut', form[0]);
+    self.submit = self.lib._('input[type="submit"]', true);
 
-    self.interval = setInterval(function() {
-      self.showTimer();
+    self.submit.disabled = true;
+  },
+
+  getTitleOfTimer: function() {
+    var self = this;
+
+    var titleInput;
+
+    titleInput = self.lib._('input#titleInput', true);
+
+    return titleInput.value;
+  },
+
+  startNewTimer: function() {
+    var self = this;
+
+    var startTime, titleOfTimer, timerID, newTimer;
+
+    startTime = new Date().getTime();
+    titleOfTimer = self.getTitleOfTimer();
+    timerID = self.timerID++;
+
+    newTimer = {
+      'id': timerID,
+      'titleName': titleOfTimer,
+      'startTime': startTime,
+      'endTime': 0
+    };
+
+    self.timers.push(newTimer);
+
+    self.createNewTimer(timerID);
+
+    self.startIntervalForTimer(timerID);
+
+    self.resetForm();
+  },
+
+  createNewTimer: function(timerID) {
+    var self = this;
+
+    var form, timerElement;
+
+    timerElement = document.createElement('p');
+    timerElement.id = 'timer' + timerID;
+    timerElement.innerHTML =
+      'Timer "' + self.timers[timerID].titleName + '": ' +
+      '<span>00:00:00:000</span> ' +
+      '<a href="#" onclick="simpleTimer.stop(' + timerID + ');">Stop</a>'
+    ;
+
+    self.lib.insertAfter(self.formElement, timerElement);
+  },
+
+  startIntervalForTimer: function(timerID) {
+    var self = this;
+
+    self.intervals[timerID] = setInterval(function() {
+      self.showTimer(timerID);
     }, 20);
   },
 
-  showTimer: function() {
+  showTimer: function(timerID) {
     var self = this;
 
-    self.endTime = new Date().getTime();
+    times = self.getTimes(timerID);
 
-    duration = self.getDuration();
-
-    timeP = self.lib._('p.showTimer');
-    timeP[0].innerHTML = duration.hours + ':' + duration.minutes + ':' + duration.seconds + ':' + duration.milliseconds;
-
-    milliseconds = self.endTime - self.startTime;
-    console.log(milliseconds);
+    timerSpan = self.lib._('p#timer' + timerID + ' span', true);
+    timerSpan.innerHTML = duration.hours + ':' + duration.minutes + ':' + duration.seconds + ':' + duration.milliseconds;
   },
 
-  stop: function() {
+  stop: function(timerID) {
     var self = this;
 
-    self.stopTimer();
+    self.stopTimer(timerID);
   },
 
-  stopTimer: function() {
+  stopTimer: function(timerID) {
     var self = this;
 
-    clearInterval(self.interval);
+    clearInterval(self.intervals[timerID]);
 
-    self.endTime = new Date().getTime();
+    endTime = new Date().getTime();
 
-    duration = self.getDuration();
-
-    timeP = self.lib._('p.time');
-    timeP[0].innerHTML = duration.hours + ':' + duration.minutes + ':' + duration.seconds;
-    self.lib.addClass('fadeIn', timeP[0]);
+    self.timers[timerID].endTime = endTime;
   },
 
-  getDuration: function() {
+  getTimes: function(timerID) {
     var self = this;
 
-    milliseconds = self.endTime - self.startTime;
+    endTime = new Date().getTime();
+
+    milliseconds = endTime - self.timers[timerID].startTime;
 
     var date = new Date(milliseconds);
     milliseconds = date.getMilliseconds();
     seconds = date.getSeconds();
     minutes = date.getMinutes();
     hours = Math.floor(minutes / 60);
-
-    console.log(milliseconds);
 
     duration = {
       'milliseconds': self.lib.twoDigits(milliseconds),
@@ -117,8 +193,11 @@ simpleTimer = {
 
   lib: {
 
-    _: function(selector) {
-      return document.querySelectorAll(selector);
+    _: function(selector, getFirstFound) {
+      if(getFirstFound == true)
+        return document.querySelector(selector);
+      else
+        return document.querySelectorAll(selector);
     },
 
     on: function(event, elem, func) {
@@ -134,6 +213,10 @@ simpleTimer = {
        return '0' + value;
 
       return value;
+    },
+
+    insertAfter: function(referenceNode, newNode) {
+      referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
     }
 
   }
