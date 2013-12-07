@@ -1,11 +1,12 @@
+/*jslint browser: true, continue: true, nomen: true */
 var SimpleTimer = {};
 
 SimpleTimer = (function() {
   'use strict';
 
-  var self = SimpleTimer || {};
+  var self, recentTimerID, timers, intervals, formElement, titleInput, submit, runningTimersMsg;
 
-  var recentTimerID, timers, intervals, formElement, titleInput, submit, runningTimersMsg;
+  self = SimpleTimer || {};
 
   recentTimerID    = 0;
   timers           = [];
@@ -14,6 +15,20 @@ SimpleTimer = (function() {
   titleInput       = {};
   submit           = {};
   runningTimersMsg = {};
+
+  function isTimerRunning() {
+    var i, timerself;
+
+    for (i = timers.length - 1; i >= 0; i -= 1) {
+      timerself = timers[i];
+
+      if(timerself.endTime === 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   function stopTimer(timerID) {
     var endTime, finishedTimersHeadline, finishedTimersMsg, timer;
@@ -32,9 +47,10 @@ SimpleTimer = (function() {
 
     self.lib.addClass('hidden', finishedTimersMsg);
 
-    if(!isTimerRunning())
+    if(!isTimerRunning()) {
       runningTimersMsg.classList.remove('hidden');
-  };
+    }
+  }
 
   function checkForStorageSupport() {
     try {
@@ -42,27 +58,28 @@ SimpleTimer = (function() {
     } catch (e) {
       return false;
     }
-  };
+  }
 
   function declareElements() {
     formElement = self.lib._('form', true);
     titleInput  = self.lib._('input[name="titleInput"]', true);
     submit      = self.lib._('input[type="submit"]', true);
-  };
+  }
 
   function bindEvents() {
     self.lib.on('keyup', titleInput, function() {
-      if(titleInput.value != '')
+      if(titleInput.value !== '') {
         submit.disabled = false;
-      else
+      } else {
         submit.disabled = true;
+      }
     });
 
     self.lib.on('click', submit, function(e) {
       e.preventDefault();
       startNewTimer();
     });
-  };
+  }
 
   function resetForm() {
     titleInput = self.lib._('input[name="titleInput"]', true);
@@ -71,7 +88,7 @@ SimpleTimer = (function() {
     submit = self.lib._('input[type="submit"]', true);
 
     submit.disabled = true;
-  };
+  }
 
   function startNewTimer() {
 
@@ -95,7 +112,7 @@ SimpleTimer = (function() {
     startIntervalForTimer(timerID);
 
     resetForm();
-  };
+  }
 
   function getTitleOfTimer() {
     var titleInput;
@@ -103,7 +120,7 @@ SimpleTimer = (function() {
     titleInput = self.lib._('input#titleInput', true);
 
     return titleInput.value;
-  };
+  }
 
   function createNewTimer(timerID) {
 
@@ -122,13 +139,13 @@ SimpleTimer = (function() {
     ;
 
     self.lib.insertAfter(runningTimersHeadline, timerElement);
-  };
+  }
 
   function startIntervalForTimer(timerID) {
     intervals[timerID] = setInterval(function() {
       showTimer(timerID);
     }, 20);
-  };
+  }
 
   function showTimer(timerID) {
     var times, timerSpan;
@@ -142,19 +159,7 @@ SimpleTimer = (function() {
       times.seconds + ':' +
       times.milliseconds
     ;
-  };
-
-  function isTimerRunning() {
-    for (var i = timers.length - 1; i >= 0; i--) {
-      var timerself;
-
-      timerself = timers[i];
-      if(timerself.endTime == 0)
-        return true;
-    };
-
-    return false;
-  };
+  }
 
   function getTimes(timerID) {
     var endTime, milliseconds, date, seconds, minutes, hours, duration;
@@ -177,7 +182,7 @@ SimpleTimer = (function() {
     }
 
     return duration;
-  };
+  }
 
   self.init = function() {
     if(!checkForStorageSupport())
@@ -225,7 +230,7 @@ SimpleTimer.lib = (function() {
   var self = SimpleTimer || {};
 
   self._ = function(selector, getFirstFound) {
-    if(getFirstFound == true)
+    if(getFirstFound === true)
       return document.querySelector(selector);
     else
       return document.querySelectorAll(selector);
