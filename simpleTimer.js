@@ -98,16 +98,7 @@ simpleTimer = (function() {
     resetForm();
   };
 
-  self.init = function() {
-    if(!checkForStorageSupport())
-      return;
-
-    declareElements();
-
-    bindEvents();
-  };
-
-  self.getTitleOfTimer = function() {
+  function getTitleOfTimer() {
     var titleInput;
 
     titleInput = self.lib._('input#titleInput', true);
@@ -115,7 +106,7 @@ simpleTimer = (function() {
     return titleInput.value;
   };
 
-  self.createNewTimer = function(timerID) {
+  function createNewTimer(timerID) {
 
     var timerElement, runningTimersHeadline;
 
@@ -135,13 +126,13 @@ simpleTimer = (function() {
     self.lib.insertAfter(runningTimersHeadline, timerElement);
   };
 
-  self.startIntervalForTimer = function(timerID) {
+  function startIntervalForTimer(timerID) {
     intervals[timerID] = setInterval(function() {
       self.showTimer(timerID);
     }, 20);
   };
 
-  self.showTimer = function(timerID) {
+  function showTimer(timerID) {
     var times, timerSpan;
 
     times = self.getTimes(timerID);
@@ -155,11 +146,7 @@ simpleTimer = (function() {
     ;
   };
 
-  self.stop = function(timerID) {
-    stopTimer(timerID);
-  };
-
-  self.isTimerRunning = function() {
+  function isTimerRunning() {
     for (var i = timers.length - 1; i >= 0; i--) {
       var timerself;
 
@@ -171,7 +158,7 @@ simpleTimer = (function() {
     return false;
   };
 
-  self.getTimes = function(timerID) {
+  function getTimes(timerID) {
     var endTime, milliseconds, date, seconds, minutes, hours, duration;
 
     endTime = new Date().getTime();
@@ -192,6 +179,19 @@ simpleTimer = (function() {
     }
 
     return duration;
+  };
+
+  self.init = function() {
+    if(!checkForStorageSupport())
+      return;
+
+    declareElements();
+
+    bindEvents();
+  };
+
+  self.stop = function(timerID) {
+    stopTimer(timerID);
   };
 
   return self;
