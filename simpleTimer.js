@@ -1,20 +1,19 @@
-var SimpleTimer = SimpleTimer || {};
+var SimpleTimer = {};
 
-simpleTimer = (function() {
+SimpleTimer = (function() {
   'use strict';
 
   var self = SimpleTimer || {};
 
-  var
-    recentTimerID = 0,
-    timers        = [],
-    intervals     = [],
+  var recentTimerID, timers, intervals, formElement, titleInput, submit, runningTimersMsg;
 
-    formElement      = {},
-    titleInput       = {},
-    submit           = {},
-    runningTimersMsg = {}
-  ;
+  recentTimerID    = 0;
+  timers           = [];
+  intervals        = [];
+  formElement      = {};
+  titleInput       = {};
+  submit           = {};
+  runningTimersMsg = {};
 
   function stopTimer(timerID) {
     var endTime, finishedTimersHeadline, finishedTimersMsg, timer;
@@ -119,7 +118,7 @@ simpleTimer = (function() {
     timerElement.innerHTML =
       'Timer "' + timers[timerID].titleName + '": ' +
       '<span>00:00:00:000</span> ' +
-      '<a href="#" onclick="simpleTimer.stop(' + timerID + ');">Stop</a>'
+      '<a href="#" onclick="SimpleTimer.stop(' + timerID + ');">Stop</a>'
     ;
 
     self.lib.insertAfter(runningTimersHeadline, timerElement);
@@ -255,5 +254,5 @@ SimpleTimer.lib = (function() {
 }());
 
 document.addEventListener('DOMContentLoaded', function() {
-  simpleTimer.init();
+  SimpleTimer.init();
 });
