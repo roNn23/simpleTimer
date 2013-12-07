@@ -7,12 +7,12 @@ simpleTimer = (function() {
 
   var
     recentTimerID = 0,
-    timers = [],
-    intervals = [],
+    timers        = [],
+    intervals     = [],
 
-    formElement = {},
-    titleInput = {},
-    submit = {},
+    formElement      = {},
+    titleInput       = {},
+    submit           = {},
     runningTimersMsg = {}
   ;
 
@@ -35,7 +35,7 @@ simpleTimer = (function() {
 
     if(!self.isTimerRunning())
       runningTimersMsg.classList.remove('hidden');
-  }
+  };
 
   function checkForStorageSupport() {
     try {
@@ -43,13 +43,13 @@ simpleTimer = (function() {
     } catch (e) {
       return false;
     }
-  }
+  };
 
   function declareElements() {
     formElement = self.lib._('form', true);
     titleInput  = self.lib._('input[name="titleInput"]', true);
     submit      = self.lib._('input[type="submit"]', true);
-  }
+  };
 
   function bindEvents() {
     self.lib.on('keyup', titleInput, function() {
@@ -113,7 +113,7 @@ simpleTimer = (function() {
     titleInput = self.lib._('input#titleInput', true);
 
     return titleInput.value;
-  },
+  };
 
   self.createNewTimer = function(timerID) {
 
@@ -133,13 +133,13 @@ simpleTimer = (function() {
 
 
     self.lib.insertAfter(runningTimersHeadline, timerElement);
-  },
+  };
 
   self.startIntervalForTimer = function(timerID) {
     intervals[timerID] = setInterval(function() {
       self.showTimer(timerID);
     }, 20);
-  },
+  };
 
   self.showTimer = function(timerID) {
     var times, timerSpan;
@@ -153,11 +153,11 @@ simpleTimer = (function() {
       times.seconds + ':' +
       times.milliseconds
     ;
-  },
+  };
 
   self.stop = function(timerID) {
     stopTimer(timerID);
-  },
+  };
 
   self.isTimerRunning = function() {
     for (var i = timers.length - 1; i >= 0; i--) {
@@ -169,7 +169,7 @@ simpleTimer = (function() {
     };
 
     return false;
-  },
+  };
 
   self.getTimes = function(timerID) {
     var endTime, milliseconds, date, seconds, minutes, hours, duration;
@@ -192,7 +192,7 @@ simpleTimer = (function() {
     }
 
     return duration;
-  }
+  };
 
   return self;
 }())
@@ -204,19 +204,19 @@ SimpleTimer.dataHandler = (function() {
 
   self.add = function(key, value) {
     localStorage.setItem(key, value);
-  },
+  };
 
   self.read = function(key) {
     localStorage.getItem(key);
-  },
+  };
 
   self.remove = function(key) {
     localStorage.removeItem(key);
-  },
+  };
 
   self.clear = function() {
     localStorage.clear();
-  }
+  };
 
   return self;
 }());
@@ -231,26 +231,26 @@ SimpleTimer.lib = (function() {
       return document.querySelector(selector);
     else
       return document.querySelectorAll(selector);
-  },
+  };
 
   self.on = function(event, elem, func) {
     elem.addEventListener(event, func, false);
-  },
+  };
 
   self.addClass = function(className, elem) {
     elem.classList.add(className);
-  },
+  };
 
   self.twoDigits = function(value) {
     if(value < 10)
      return '0' + value;
 
     return value;
-  },
+  };
 
   self.insertAfter = function(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-  }
+  };
 
   return self;
 }());
