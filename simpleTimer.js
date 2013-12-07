@@ -33,7 +33,7 @@ simpleTimer = (function() {
 
     self.lib.addClass('hidden', finishedTimersMsg);
 
-    if(!self.isTimerRunning())
+    if(!isTimerRunning())
       runningTimersMsg.classList.remove('hidden');
   };
 
@@ -79,7 +79,7 @@ simpleTimer = (function() {
     var startTime, titleOfTimer, timerID, newTimer;
 
     startTime = new Date().getTime();
-    titleOfTimer = self.getTitleOfTimer();
+    titleOfTimer = getTitleOfTimer();
     timerID = timers.length;
 
     newTimer = {
@@ -91,9 +91,9 @@ simpleTimer = (function() {
 
     timers.push(newTimer);
 
-    self.createNewTimer(timerID);
+    createNewTimer(timerID);
 
-    self.startIntervalForTimer(timerID);
+    startIntervalForTimer(timerID);
 
     resetForm();
   };
@@ -122,20 +122,19 @@ simpleTimer = (function() {
       '<a href="#" onclick="simpleTimer.stop(' + timerID + ');">Stop</a>'
     ;
 
-
     self.lib.insertAfter(runningTimersHeadline, timerElement);
   };
 
   function startIntervalForTimer(timerID) {
     intervals[timerID] = setInterval(function() {
-      self.showTimer(timerID);
+      showTimer(timerID);
     }, 20);
   };
 
   function showTimer(timerID) {
     var times, timerSpan;
 
-    times = self.getTimes(timerID);
+    times = getTimes(timerID);
 
     timerSpan = self.lib._('p#timer' + timerID + ' span', true);
     timerSpan.innerHTML =
