@@ -1,7 +1,5 @@
 /*jslint browser: true, continue: true, nomen: true */
-var SimpleTimer = {};
-
-SimpleTimer = (function() {
+var SimpleTimer = (function() {
   'use strict';
 
   var self, timers, intervals, formElement, titleInput, submit, runningTimersMsg;
@@ -24,6 +22,8 @@ SimpleTimer = (function() {
     timers[timerID].endTime = endTime;
 
     self.dataHandler.set('timers', timers);
+
+    updateTimers();
   }
 
   function checkForStorageSupport() {
@@ -85,6 +85,7 @@ SimpleTimer = (function() {
     self.dataHandler.set('timers', timers);
 
     resetForm();
+    updateTimers();
   }
 
   function getTitleOfTimer() {
@@ -154,6 +155,8 @@ SimpleTimer = (function() {
   function showRunningTimers() {
     var i, runningTimer, runningTimers;
 
+    self.lib.empty('.runningTimers .timers');
+
     runningTimers = self.model.getRunningTimers();
     for (i = runningTimers.length - 1; i >= 0; i -= 1) {
       runningTimer = runningTimers[i];
@@ -162,53 +165,68 @@ SimpleTimer = (function() {
   }
 
   function showRunningTimer(runningTimer) {
-
-    var timerElement, runningTimersHeadline;
+    var timerHTML, timerElement, runningTimersHeadline;
 
     runningTimersHeadline = self.lib._('.runningTimers h3', true);
-    runningTimersMsg = self.lib._('.runningTimers .emptyMessage', true);
-    self.lib.addClass('hidden', runningTimersMsg);
 
-    timerElement = document.createElement('p');
-    timerElement.id = 'timer' + runningTimer.timerID;
-    timerElement.innerHTML =
+    timerHTML =
       'Timer "' + runningTimer.titleName + '": ' +
       '<span>' + getFormatedTime(runningTimer.timerID) + '</span> ' +
       '<a href="#" onclick="SimpleTimer.stop(' + runningTimer.timerID + ');">Stop</a>'
     ;
 
-    self.lib.insertAfter(runningTimersHeadline, timerElement);
+    timerElement = getTimerElement(
+      runningTimer.timerID,
+      timerHTML
+    );
+
+    self.lib.append('.runningTimers .timers', timerElement);
     startIntervalForTimer(runningTimer.timerID);
   }
 
   function showStoppedTimers() {
     var i, stoppedTimer, stoppedTimers;
 
-    stoppedTimers = self.model.getStoppedTimers();
+    self.lib.empty('.finishedTimers .timers');
 
+    stoppedTimers = self.model.getStoppedTimers();
     for (i = stoppedTimers.length - 1; i >= 0; i -= 1) {
       stoppedTimer = stoppedTimers[i];
-
       showStoppedTimer(stoppedTimer);
     }
   }
 
   function showStoppedTimer(stoppedTimer) {
-    var finishedTimersHeadline, finishedTimersMsg, timer, timerElement;
+    var timerHTML, timerElement, finishedTimersHeadline;
 
     finishedTimersHeadline = self.lib._('.finishedTimers h3', true);
-    finishedTimersMsg = self.lib._('.finishedTimers .emptyMessage', true);
 
-    timerElement = document.createElement('p');
-    timerElement.id = 'timer' + stoppedTimer.timerID;
-    timerElement.innerHTML =
+    timerHTML =
       'Timer "' + stoppedTimer.titleName + '": ' +
       '<span>' + getFormatedTime(stoppedTimer.timerID) + '</span> '
     ;
 
-    self.lib.insertAfter(finishedTimersHeadline, timerElement);
+    timerElement = getTimerElement(
+      stoppedTimer.timerID,
+      timerHTML
+    );
 
-    self.lib.addClass('hidden', finishedTimersMsg);
+    self.lib.append('.finishedTimers .timers', timerElement);
+  }
+
+  function updateTimers() {
+    showRunningTimers();
+    showStoppedTimers();
+  }
+
+  function getTimerElement(timerID, timerHTML) {
+    var timerElement;
+
+    timerElement = document.createElement('p');
+    timerElement.id = 'timer' + timerID;
+    timerElement.innerHTML = timerHTML;
+
+    return timerElement;
   }
 
   function getTimers() {
@@ -228,8 +246,8 @@ SimpleTimer = (function() {
     bindEvents();
 
     timers = getTimers();
-    showRunningTimers();
-    showStoppedTimers();
+
+    updateTimers();
   };
 
   self.stop = function(timerID) {
@@ -377,7 +395,27 @@ SimpleTimer.lib = (function() {
   };
 
   self.insertAfter = function(referenceNode, newNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    referenceNode.parentNode.insertBefore(
+      newNode,
+      referenceNode.nextSibling
+    );
+  };
+
+  self.empty = function(selector) {
+    var element;
+
+    element = self._(selector, true);
+
+    while(element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+  };
+
+  self.append = function(selector, elementToAppend) {
+    var element;
+
+    element = self._(selector, true);
+    element.appendChild(elementToAppend);
   };
 
   return self;
