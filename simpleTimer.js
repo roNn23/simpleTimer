@@ -21,7 +21,15 @@ var SimpleTimer = (function() {
 
     timers[timerID].endTime = endTime;
 
-    self.dataHandler.set('timers', timers);
+    writeTimers();
+
+    updateTimers();
+  }
+
+  function deleteTimer(timerID) {
+    timers.splice(timerID, 1);
+
+    writeTimers();
 
     updateTimers();
   }
@@ -78,12 +86,11 @@ var SimpleTimer = (function() {
       'endTime': endTime
     };
 
-    timers = self.model.getTimers();
+    timers       = self.model.getTimers();
     timersLength = timers.push(newTimer);
-    timerID = timersLength - 1;
+    timerID      = timersLength - 1;
 
-    self.dataHandler.set('timers', timers);
-
+    writeTimers();
     resetForm();
     updateTimers();
   }
@@ -135,12 +142,11 @@ var SimpleTimer = (function() {
       endTime = timer.endTime;
 
     milliseconds = endTime - timer.startTime;
-
-    date = new Date(milliseconds);
+    date         = new Date(milliseconds);
     milliseconds = date.getMilliseconds();
-    seconds = date.getSeconds();
-    minutes = date.getMinutes();
-    hours = Math.floor(minutes / 60);
+    seconds      = date.getSeconds();
+    minutes      = date.getMinutes();
+    hours        = Math.floor(minutes / 60);
 
     duration = {
       'milliseconds': self.lib.twoDigits(milliseconds),
@@ -203,7 +209,8 @@ var SimpleTimer = (function() {
 
     timerHTML =
       'Timer "' + stoppedTimer.titleName + '": ' +
-      '<span>' + getFormatedTime(stoppedTimer.timerID) + '</span> '
+      '<span>' + getFormatedTime(stoppedTimer.timerID) + '</span> ' +
+      '<a href="#" onclick="SimpleTimer.delete(' + stoppedTimer.timerID + ');">Delete</a>'
     ;
 
     timerElement = getTimerElement(
@@ -214,7 +221,23 @@ var SimpleTimer = (function() {
     self.lib.append('.finishedTimers .timers', timerElement);
   }
 
+  function clearIntervals() {
+    var interval;
+
+    for (var i = intervals.length - 1; i >= 0; i--) {
+      interval = intervals[i];
+      clearInterval(interval);
+    };
+  }
+
+  function writeTimers() {
+    self.dataHandler.set('timers', timers);
+  }
+
   function updateTimers() {
+    clearIntervals();
+    timers = getTimers();
+
     showRunningTimers();
     showStoppedTimers();
   }
@@ -245,13 +268,15 @@ var SimpleTimer = (function() {
 
     bindEvents();
 
-    timers = getTimers();
-
     updateTimers();
   };
 
   self.stop = function(timerID) {
     stopTimer(timerID);
+  };
+
+  self.delete = function(timerID) {
+    deleteTimer(timerID);
   };
 
   return self;
@@ -298,6 +323,7 @@ SimpleTimer.model = (function() {
     runningTimers = [];
     for (var i = timers.length - 1; i >= 0; i--) {
       timer = timers[i];
+
       timer.timerID = i;
       if(isRunningTimer(timer)) {
         runningTimers.push(timer);
