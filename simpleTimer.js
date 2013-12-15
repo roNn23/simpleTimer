@@ -171,12 +171,14 @@ var SimpleTimer = (function() {
   }
 
   function showRunningTimer(runningTimer) {
-    var timerHTML, timerElement, runningTimersHeadline;
+    var timerHTML, timerElement, runningTimersHeadline, startedTime;
 
     runningTimersHeadline = self.lib._('.runningTimers h3', true);
 
+    self.date.setTimestamp(runningTimer.startTime);
+
     timerHTML =
-      'Timer "' + runningTimer.titleName + '": ' +
+      'Timer "' + runningTimer.titleName + '" (started on ' + self.date.getFormatedTime() + '): ' +
       '<span>' + getFormatedTime(runningTimer.timerID) + '</span> ' +
       '<a href="#" onclick="SimpleTimer.stop(' + runningTimer.timerID + ');">Stop</a>'
     ;
@@ -203,12 +205,21 @@ var SimpleTimer = (function() {
   }
 
   function showStoppedTimer(stoppedTimer) {
-    var timerHTML, timerElement, finishedTimersHeadline;
+    var timerHTML, timerElement, finishedTimersHeadline, startedTime, endTime;
 
     finishedTimersHeadline = self.lib._('.finishedTimers h3', true);
 
+
+    self.date.setTimestamp(stoppedTimer.startTime);
+    startedTime = self.date.getFormatedTime();
+
+    self.date.setTimestamp(stoppedTimer.endTime);
+    endTime = self.date.getFormatedTime();
+
     timerHTML =
-      'Timer "' + stoppedTimer.titleName + '": ' +
+      'Timer "' + stoppedTimer.titleName + '" ' +
+      '(started ' + startedTime + ' – ' +
+      'stopped ' + endTime + '): ' +
       '<span>' + getFormatedTime(stoppedTimer.timerID) + '</span> ' +
       '<a href="#" onclick="SimpleTimer.delete(' + stoppedTimer.timerID + ');">Delete</a>'
     ;
@@ -442,6 +453,49 @@ SimpleTimer.lib = (function() {
 
     element = self._(selector, true);
     element.appendChild(elementToAppend);
+  };
+
+  return self;
+}());
+
+SimpleTimer.date = (function() {
+  'use strict';
+
+  var self = SimpleTimer || {};
+  var dateObject;
+
+  self.setTimestamp = function(timestamp) {
+    dateObject = new Date(timestamp);
+  }
+
+  self.getMinutes = function() {
+    var month;
+
+    month = dateObject.getMonth() + 1;
+
+    return month;
+  }
+
+  self.getFormatedTime = function() {
+    var second, minute, hour, day, month, year, string;
+
+    second = dateObject.getSeconds();
+    minute = dateObject.getMinutes();
+    hour   = dateObject.getHours();
+    day    = dateObject.getDate();
+    month  = SimpleTimer.date.getMinutes(dateObject);
+    year   = dateObject.getFullYear();
+
+    string =
+      day + '.' +
+      month + '.' +
+      year + ' at ' +
+      hour + ':' +
+      self.lib.twoDigits(minute) + ':' +
+      self.lib.twoDigits(second)
+    ;
+
+    return string;
   };
 
   return self;
